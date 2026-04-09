@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Морской Бой - ALIVASOFT.COM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #00ff9d;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        .crt-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15) 0px,
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            z-index: 100;
+            opacity: 0.3;
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 255, 157, 0.3);
+            box-shadow: 0 0 10px 2px rgba(0, 255, 157, 0.5);
+            animation: scanline 8s linear infinite;
+            z-index: 99;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% { top: -4px; }
+            100% { top: 100%; }
+        }
+
+        /* Language Switcher Styles */
+        .lang-switcher {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 200;
+            background: rgba(0, 30, 60, 0.9);
+            padding: 12px 8px;
+            border: 2px solid #00ff9d;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.4);
+        }
+
+        .lang-btn {
+            background: rgba(0, 20, 40, 0.8);
+            border: 2px solid #00cc7a;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #00cc7a;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-width: 50px;
+        }
+
+        .lang-btn:hover {
+            background: rgba(0, 50, 100, 0.9);
+            border-color: #00ff9d;
+            color: #00ff9d;
+            transform: scale(1.05);
+        }
+
+        .lang-btn.active {
+            background: rgba(0, 100, 100, 0.9);
+            border-color: #00ff9d;
+            color: #00ff9d;
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: rgba(10, 15, 30, 0.9);
+            border: 4px solid #00ff9d;
+            border-radius: 8px;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 157, 0.5),
+                inset 0 0 30px rgba(0, 255, 157, 0.1);
+            padding: 25px;
+            position: relative;
+            z-index: 1;
+            margin-left: 80px; /* Space for lang switcher */
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #00ff9d;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #00ff9d;
+            text-shadow: 
+                0 0 10px #00ff9d,
+                0 0 20px #00ff9d,
+                0 0 40px #00ff9d;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #00cc7a;
+            letter-spacing: 1px;
+        }
+
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .board-container {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 20, 40, 0.8);
+            border: 3px solid #00ff9d;
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
+        }
+
+        .board-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #00ff9d;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px #00ff9d;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            border: 2px solid #00cc7a;
+            background: rgba(0, 40, 80, 0.7);
+            padding: 2px;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: rgba(0, 60, 120, 0.7);
+            border: 1px solid rgba(0, 200, 255, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .cell:hover {
+            background: rgba(0, 100, 180, 0.9);
+            transform: scale(1.05);
+        }
+
+        .player-board .cell.ship {
+            background: rgba(0, 255, 157, 0.3);
+            border: 1px solid #00ff9d;
+            position: relative;
+        }
+
+        .player-board .cell.ship::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="none" stroke="%2300ff9d" stroke-width="2"/></svg>');
+            opacity: 0.3;
+        }
+
+        .enemy-board .cell.hit {
+            background: radial-gradient(circle, #ff0000 30%, #990000 100%);
+            border: 1px solid #ff3333;
+            box-shadow: 0 0 8px #ff0000;
+            animation: hitPulse 0.5s;
+        }
+
+        .enemy-board .cell.miss {
+            background: radial-gradient(circle, #0066cc 30%, #004488 100%);
+            border: 1px solid #00aaff;
+            animation: missPulse 0.5s;
+        }
+
+        .player-board .cell.hit {
+            background: radial-gradient(circle, #ff3333 30%, #990000 100%);
+            border: 1px solid #ff6666;
+            box-shadow: 0 0 8px #ff0000;
+            animation: hitPulse 0.5s;
+        }
+
+        .player-board .cell.miss {
+            background: radial-gradient(circle, #0066cc 30%, #004488 100%);
+            border: 1px solid #00aaff;
+            animation: missPulse 0.5s;
+        }
+
+        .ship-destroyed {
+            background: radial-gradient(circle, #ff0000 40%, #660000 100%) !important;
+            box-shadow: 0 0 15px #ff0000 !important;
+            border: 1px solid #ff6666 !important;
+            animation: destroyPulse 1s infinite;
+        }
+
+        @keyframes hitPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0px #ff0000; }
+            50% { transform: scale(1.1); box-shadow: 0 0 15px #ff0000; }
+            100% { transform: scale(1); box-shadow: 0 0 8px #ff0000; }
+        }
+
+        @keyframes missPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes destroyPulse {
+            0% { box-shadow: 0 0 5px #ff0000; }
+            50% { box-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000; }
+            100% { box-shadow: 0 0 5px #ff0000; }
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #00ff9d;
+        }
+
+        .btn {
+            background: linear-gradient(180deg, #003366 0%, #001a33 100%);
+            color: #00ff9d;
+            border: 2px solid #00ff9d;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            min-width: 160px;
+            box-shadow: 0 4px 0 #006644;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            background: linear-gradient(180deg, #004488 0%, #002244 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #006644, 0 0 15px rgba(0, 255, 157, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 0 #006644;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 4px 0 #006644;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .game-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 30, 60, 0.8);
+            border: 2px solid #00ff9d;
+            border-radius: 6px;
+        }
+
+        .info-box {
+            flex: 1;
+            min-width: 180px;
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 20, 40, 0.9);
+            border-radius: 6px;
+            border: 1px solid #00cc7a;
+        }
+
+        .info-title {
+            font-size: 1.2rem;
+            color: #00cc7a;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff9d;
+            text-shadow: 0 0 5px #00ff9d;
+        }
+
+        .ship-selection {
+            background: rgba(0, 30, 60, 0.8);
+            border: 2px solid #00ff9d;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .ship-selection.active {
+            display: block;
+        }
+
+        .ship-selection h3 {
+            text-align: center;
+            font-size: 1.6rem;
+            color: #00ff9d;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .ship-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .ship-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(0, 20, 40, 0.9);
+            border: 2px solid #00ff9d;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ship-item:hover {
+            background: rgba(0, 40, 80, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .ship-item.selected {
+            background: rgba(0, 100, 100, 0.9);
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.5);
+        }
+
+        .ship-item.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .ship-preview {
+            display: flex;
+            gap: 2px;
+        }
+
+        .ship-cell {
+            width: 25px;
+            height: 25px;
+            background: rgba(0, 255, 157, 0.3);
+            border: 1px solid #00ff9d;
+        }
+
+        .ship-name {
+            font-size: 1.1rem;
+            color: #00ff9d;
+            font-weight: bold;
+        }
+
+        .ship-count {
+            font-size: 1rem;
+            color: #00cc7a;
+        }
+
+        .placement-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .status-message {
+            text-align: center;
+            font-size: 1.6rem;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 30, 60, 0.9);
+            border-radius: 6px;
+            border: 2px solid #00ff9d;
+            color: #00ff9d;
+            text-shadow: 0 0 5px #00ff9d;
+            min-height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #001a33 0%, #003366 100%);
+            border: 4px solid #00ff9d;
+            border-radius: 10px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 255, 157, 0.7);
+        }
+
+        .modal h2 {
+            font-size: 2.8rem;
+            color: #00ff9d;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #00ff9d;
+        }
+
+        .modal p {
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            color: #00cc7a;
+        }
+
+        .sound-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .sound-btn {
+            background: rgba(0, 30, 60, 0.8);
+            border: 2px solid #00ff9d;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00ff9d;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sound-btn:hover {
+            background: rgba(0, 50, 100, 0.9);
+            transform: scale(1.1);
+        }
+
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 30, 60, 0.8);
+            border: 2px solid #00ff9d;
+            border-radius: 6px;
+        }
+
+        .instructions h3 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #00ff9d;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #00cc7a;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .instructions li i {
+            color: #00ff9d;
+            margin-right: 10px;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 1200px) {
+            .game-area {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .board-container {
+                width: 100%;
+                max-width: 500px;
+            }
+            
+            .container {
+                margin-left: 0;
+            }
+            
+            .lang-switcher {
+                left: 10px;
+                flex-direction: row;
+                top: auto;
+                bottom: 60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .btn {
+                min-width: 140px;
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .info-value {
+                font-size: 1.6rem;
+            }
+            
+            .status-message {
+                font-size: 1.3rem;
+            }
+            
+            .sound-controls {
+                top: 10px;
+                right: 10px;
+            }
+            
+            .sound-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .lang-switcher {
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 55px;
+                flex-direction: row;
+                padding: 8px;
+            }
+        }
+
+        .ship-placement-hint {
+            position: absolute;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0.7;
+        }
+
+        .ship-placement-hint .ship-cell {
+            background: rgba(0, 255, 157, 0.5);
+            border: 1px solid #00ff9d;
+        }
+
+        .invalid-placement {
+            background: rgba(255, 0, 0, 0.3) !important;
+            border-color: #ff0000 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="crt-effect"></div>
+    <div class="scanline"></div>
+    
+    <!-- Language Switcher -->
+    <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="ru" title="Русский">РУ</button>
+        <button class="lang-btn" data-lang="en" title="English">EN</button>
+        <button class="lang-btn" data-lang="es" title="Español">ES</button>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-ship"></i> <span data-i18n="gameTitle">МОРСКОЙ БОЙ</span> <i class="fas fa-ship"></i></h1>
+            <p>
+                <a href="https://alivasoft.com" style="color: #00ff9d;">ALIVASOFT.COM</a> • <span data-i18n="gameSubtitle">Классика советских игровых автоматов</span>
+            </p>
+        </div>
+        
+        <div class="status-message" id="statusMessage" data-i18n="selectShip">
+            Выберите корабль для ручной расстановки!
+        </div>
+        
+        <div class="ship-selection active" id="shipSelection">
+            <h3><i class="fas fa-flag"></i> <span data-i18n="selectShipPlace">ВЫБЕРИТЕ КОРАБЛЬ ДЛЯ РАССТАНОВКИ</span> <i class="fas fa-flag"></i></h3>
+            <div class="ship-list" id="shipList">
+                <!-- Will be filled by JavaScript -->
+            </div>
+            <div class="placement-controls">
+                <button class="btn" id="rotateBtn" data-i18n="rotateBtn">
+                    <i class="fas fa-sync-alt"></i> Повернуть (R)
+                </button>
+                <button class="btn" id="clearBoardBtn" data-i18n="clearBoardBtn">
+                    <i class="fas fa-trash"></i> Очистить поле
+                </button>
+                <button class="btn" id="completePlacementBtn" data-i18n="completePlacementBtn">
+                    <i class="fas fa-check"></i> Завершить расстановку
+                </button>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <div class="board-container">
+                <div class="board-title" data-i18n="playerBoard">ВАШ ФЛОТ</div>
+                <div class="game-board player-board" id="playerBoard"></div>
+                <div class="ship-counter" id="playerShips"></div>
+            </div>
+            
+            <div class="board-container">
+                <div class="board-title" data-i18n="enemyBoard">ФЛОТ ПРОТИВНИКА</div>
+                <div class="game-board enemy-board" id="enemyBoard"></div>
+                <div class="ship-counter" id="enemyShips"></div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <div class="info-title" data-i18n="yourShots">Ваши выстрелы</div>
+                <div class="info-value" id="playerShots">0</div>
+            </div>
+            
+            <div class="info-box">
+                <div class="info-title" data-i18n="enemyShotsTitle">Выстрелы противника</div>
+                <div class="info-value" id="enemyShots">0</div>
+            </div>
+            
+            <div class="info-box">
+                <div class="info-title" data-i18n="remainingShips">Осталось кораблей</div>
+                <div class="info-value" id="remainingShips">10</div>
+            </div>
+            
+            <div class="info-box">
+                <div class="info-title" data-i18n="currentTurn">Ход</div>
+                <div class="info-value" id="currentTurn" data-i18n="placement">Расстановка</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="manualPlaceBtn" data-i18n="manualPlaceBtn">
+                <i class="fas fa-hand-pointer"></i> Ручная расстановка
+            </button>
+            <button class="btn" id="autoPlaceBtn" data-i18n="autoPlaceBtn">
+                <i class="fas fa-random"></i> Авторасстановка
+            </button>
+            <button class="btn" id="startGameBtn" disabled data-i18n="startGameBtn">
+                <i class="fas fa-play"></i> Начать игру
+            </button>
+            <button class="btn" id="restartBtn" data-i18n="restartBtn">
+                <i class="fas fa-redo"></i> Новая игра
+            </button>
+            <button class="btn" id="instructionsBtn" data-i18n="instructionsBtn">
+                <i class="fas fa-info-circle"></i> Правила
+            </button>
+        </div>
+        
+        <div class="instructions" id="instructions" style="display: none;">
+            <h3><i class="fas fa-anchor"></i> <span data-i18n="rulesTitle">ПРАВИЛА ИГРЫ</span> <i class="fas fa-anchor"></i></h3>
+            <ul>
+                <li><i class="fas fa-rocket"></i> <span data-i18n="rule1">Цель игры: уничтожить все корабли противника первым</span></li>
+                <li><i class="fas fa-th"></i> <span data-i18n="rule2">Каждый игрок имеет 10 кораблей: 1×4, 2×3, 3×2, 4×1</span></li>
+                <li><i class="fas fa-crosshairs"></i> <span data-i18n="rule3">Кликните по клетке на поле противника, чтобы сделать выстрел</span></li>
+                <li><i class="fas fa-ship"></i> <span data-i18n="rule4">Корабли нельзя располагать вплотную друг к другу</span></li>
+                <li><i class="fas fa-exchange-alt"></i> <span data-i18n="rule5">Игроки ходят по очереди. При попадании — дополнительный ход</span></li>
+                <li><i class="fas fa-fire"></i> <span data-i18n="rule6">Красная клетка — попадание, синяя клетка — промах</span></li>
+                <li><i class="fas fa-trophy"></i> <span data-i18n="rule7">Побеждает тот, кто первым потопит все корабли противника</span></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="sound-controls">
+        <button class="sound-btn" id="soundToggle" title="Звук">
+            <i class="fas fa-volume-up"></i>
+        </button>
+    </div>
+    
+    <div class="modal" id="winModal">
+        <div class="modal-content">
+            <h2 id="winTitle" data-i18n="victory">ПОБЕДА!</h2>
+            <p id="winMessage" data-i18n="winMessage">Вы уничтожили все корабли противника!</p>
+            <button class="btn" id="closeWinModal" data-i18n="playAgain">
+                <i class="fas fa-redo"></i> Играть снова
+            </button>
+        </div>
+    </div>
+    
+    <div class="modal" id="loseModal">
+        <div class="modal-content">
+            <h2 id="loseTitle" data-i18n="defeat">ПОРАЖЕНИЕ!</h2>
+            <p id="loseMessage" data-i18n="loseMessage">Противник уничтожил все ваши корабли!</p>
+            <button class="btn" id="closeLoseModal" data-i18n="tryAgain">
+                <i class="fas fa-redo"></i> Попробовать снова
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== TRANSLATIONS ====================
+        const translations = {
+            ru: {
+                // Game Title & Header
+                gameTitle: "МОРСКОЙ БОЙ",
+                gameSubtitle: "Классика советских игровых автоматов",
+                
+                // Status Messages
+                selectShip: "Выберите корабль для ручной расстановки!",
+                selectShipPlace: "ВЫБЕРИТЕ КОРАБЛЬ ДЛЯ РАССТАНОВКИ",
+                shipPlaced: "Корабль размещён!",
+                allPlaced: "Все корабли размещены! Нажмите \"Завершить расстановку\"",
+                gameStarted: "ИГРА НАЧАЛАСЬ! Ваш ход.",
+                placementComplete: "Все корабли расставлены! Нажмите \"Начать игру\"",
+                placeAllShips: "Расставьте все корабли перед началом игры!",
+                
+                // Board Titles
+                playerBoard: "ВАШ ФЛОТ",
+                enemyBoard: "ФЛОТ ПРОТИВНИКА",
+                
+                // Game Info
+                yourShots: "Ваши выстрелы",
+                enemyShotsTitle: "Выстрелы противника",
+                remainingShips: "Осталось кораблей",
+                currentTurn: "Ход",
+                placement: "Расстановка",
+                yourTurn: "Ваш",
+                enemyTurn: "Противник",
+                
+                // Buttons
+                rotateBtn: "Повернуть (R)",
+                clearBoardBtn: "Очистить поле",
+                completePlacementBtn: "Завершить расстановку",
+                manualPlaceBtn: "Ручная расстановка",
+                autoPlaceBtn: "Авторасстановка",
+                startGameBtn: "Начать игру",
+                restartBtn: "Новая игра",
+                instructionsBtn: "Правила",
+                
+                // Ship Names & Info
+                battleship: "Линкор",
+                cruiser: "Крейсер",
+                destroyer: "Эсминец",
+                patrol: "Катер",
+                decks: "палубы",
+                
+                // Game Messages
+                hit: "ПОПАДАНИЕ!",
+                miss: "ПРОМАХ! Ход противника",
+                shipDestroyed: "КОРАБЛЬ УНИЧТОЖЕН!",
+                enemyHit: "Противник попал по вашим кораблям!",
+                enemyDestroyed: "Противник уничтожил ваш корабль!",
+                enemyMiss: "Противник промахнулся! Ваш ход",
+                
+                // Modals
+                victory: "ПОБЕДА!",
+                defeat: "ПОРАЖЕНИЕ!",
+                winMessage: "Вы уничтожили все корабли противника!",
+                loseMessage: "Противник уничтожил все ваши корабли!",
+                playAgain: "Играть снова",
+                tryAgain: "Попробовать снова",
+                
+                // Rules
+                rulesTitle: "ПРАВИЛА ИГРЫ",
+                rule1: "Цель игры: уничтожить все корабли противника первым",
+                rule2: "Каждый игрок имеет 10 кораблей: 1×4, 2×3, 3×2, 4×1",
+                rule3: "Кликните по клетке на поле противника, чтобы сделать выстрел",
+                rule4: "Корабли нельзя располагать вплотную друг к другу",
+                rule5: "Игроки ходят по очереди. При попадании — дополнительный ход",
+                rule6: "Красная клетка — попадание, синяя клетка — промах",
+                rule7: "Побеждает тот, кто первым потопит все корабли противника",
+                
+                // Errors
+                shipNotPlaceable: "Невозможно разместить корабль здесь!",
+                allShipsPlaced: "Все корабли этого типа уже размещены!",
+                shipSelected: "Выбран {name} ({size} палубы). Кликните на поле для размещения."
+            },
+            en: {
+                // Game Title & Header
+                gameTitle: "BATTLESHIP",
+                gameSubtitle: "Classic Soviet arcade game",
+                
+                // Status Messages
+                selectShip: "Select a ship for manual placement!",
+                selectShipPlace: "SELECT A SHIP TO PLACE",
+                shipPlaced: "Ship placed!",
+                allPlaced: "All ships placed! Click \"Complete Placement\"",
+                gameStarted: "GAME STARTED! Your turn.",
+                placementComplete: "All ships placed! Click \"Start Game\"",
+                placeAllShips: "Place all ships before starting the game!",
+                
+                // Board Titles
+                playerBoard: "YOUR FLEET",
+                enemyBoard: "ENEMY FLEET",
+                
+                // Game Info
+                yourShots: "Your Shots",
+                enemyShotsTitle: "Enemy Shots",
+                remainingShips: "Ships Left",
+                currentTurn: "Turn",
+                placement: "Placement",
+                yourTurn: "Yours",
+                enemyTurn: "Enemy",
+                
+                // Buttons
+                rotateBtn: "Rotate (R)",
+                clearBoardBtn: "Clear Board",
+                completePlacementBtn: "Complete Placement",
+                manualPlaceBtn: "Manual Placement",
+                autoPlaceBtn: "Auto-Place",
+                startGameBtn: "Start Game",
+                restartBtn: "New Game",
+                instructionsBtn: "Rules",
+                
+                // Ship Names & Info
+                battleship: "Battleship",
+                cruiser: "Cruiser",
+                destroyer: "Destroyer",
+                patrol: "Patrol Boat",
+                decks: "decks",
+                
+                // Game Messages
+                hit: "HIT!",
+                miss: "MISS! Enemy's turn",
+                shipDestroyed: "SHIP DESTROYED!",
+                enemyHit: "Enemy hit your ship!",
+                enemyDestroyed: "Enemy destroyed your ship!",
+                enemyMiss: "Enemy missed! Your turn",
+                
+                // Modals
+                victory: "VICTORY!",
+                defeat: "DEFEAT!",
+                winMessage: "You destroyed all enemy ships!",
+                loseMessage: "Enemy destroyed all your ships!",
+                playAgain: "Play Again",
+                tryAgain: "Try Again",
+                
+                // Rules
+                rulesTitle: "GAME RULES",
+                rule1: "Goal: Be the first to destroy all enemy ships",
+                rule2: "Each player has 10 ships: 1×4, 2×3, 3×2, 4×1",
+                rule3: "Click on enemy board cell to fire",
+                rule4: "Ships cannot be placed adjacent to each other",
+                rule5: "Players take turns. Hit = extra turn",
+                rule6: "Red cell = hit, blue cell = miss",
+                rule7: "Winner is who sinks all enemy ships first",
+                
+                // Errors
+                shipNotPlaceable: "Cannot place ship here!",
+                allShipsPlaced: "All ships of this type already placed!",
+                shipSelected: "Selected {name} ({size} decks). Click board to place."
+            },
+            es: {
+                // Game Title & Header
+                gameTitle: "HUNDIR LA FLOTA",
+                gameSubtitle: "Clásico juego de arcade soviético",
+                
+                // Status Messages
+                selectShip: "¡Seleccione un barco para colocación manual!",
+                selectShipPlace: "SELECCIONE UN BARCO PARA COLOCAR",
+                shipPlaced: "¡Barco colocado!",
+                allPlaced: "¡Todos los barcos colocados! Haga clic en \"Completar colocación\"",
+                gameStarted: "¡JUEGO INICIADO! Su turno.",
+                placementComplete: "¡Todos los barcos colocados! Haga clic en \"Iniciar juego\"",
+                placeAllShips: "¡Coloque todos los barcos antes de iniciar el juego!",
+                
+                // Board Titles
+                playerBoard: "SU FLOTA",
+                enemyBoard: "FLOTA ENEMIGA",
+                
+                // Game Info
+                yourShots: "Sus disparos",
+                enemyShotsTitle: "Disparos enemigos",
+                remainingShips: "Barcos restantes",
+                currentTurn: "Turno",
+                placement: "Colocación",
+                yourTurn: "Suyo",
+                enemyTurn: "Enemigo",
+                
+                // Buttons
+                rotateBtn: "Rotar (R)",
+                clearBoardBtn: "Limpiar tablero",
+                completePlacementBtn: "Completar colocación",
+                manualPlaceBtn: "Colocación manual",
+                autoPlaceBtn: "Colocación automática",
+                startGameBtn: "Iniciar juego",
+                restartBtn: "Nuevo juego",
+                instructionsBtn: "Reglas",
+                
+                // Ship Names & Info
+                battleship: "Acorazado",
+                cruiser: "Crucero",
+                destroyer: "Destructor",
+                patrol: "Lancha",
+                decks: "cubiertas",
+                
+                // Game Messages
+                hit: "¡IMPACTO!",
+                miss: "¡FALLO! Turno del enemigo",
+                shipDestroyed: "¡BARCO DESTRUIDO!",
+                enemyHit: "¡El enemigo impactó su barco!",
+                enemyDestroyed: "¡El enemigo destruyó su barco!",
+                enemyMiss: "¡El enemigo falló! Su turno",
+                
+                // Modals
+                victory: "¡VICTORIA!",
+                defeat: "¡DERROTA!",
+                winMessage: "¡Destruyó todos los barcos enemigos!",
+                loseMessage: "¡El enemigo destruyó todos sus barcos!",
+                playAgain: "Jugar de nuevo",
+                tryAgain: "Intentar de nuevo",
+                
+                // Rules
+                rulesTitle: "REGLAS DEL JUEGO",
+                rule1: "Objetivo: Ser el primero en destruir todos los barcos enemigos",
+                rule2: "Cada jugador tiene 10 barcos: 1×4, 2×3, 3×2, 4×1",
+                rule3: "Haga clic en una celda del tablero enemigo para disparar",
+                rule4: "Los barcos no pueden colocarse adyacentes entre sí",
+                rule5: "Los jugadores turnan. Impacto = turno extra",
+                rule6: "Celda roja = impacto, celda azul = fallo",
+                rule7: "Gana quien hunda primero todos los barcos enemigos",
+                
+                // Errors
+                shipNotPlaceable: "¡No se puede colocar el barco aquí!",
+                allShipsPlaced: "¡Todos los barcos de este tipo ya están colocados!",
+                shipSelected: "Seleccionado {name} ({size} cubiertas). Haga clic en el tablero para colocar."
+            }
+        };
+
+        // ==================== GAME CONFIG ====================
+        const SHIPS = [
+            { size: 4, count: 1, nameKey: "battleship", placed: 0 },
+            { size: 3, count: 2, nameKey: "cruiser", placed: 0 },
+            { size: 2, count: 3, nameKey: "destroyer", placed: 0 },
+            { size: 1, count: 4, nameKey: "patrol", placed: 0 }
+        ];
+        
+        const BOARD_SIZE = 10;
+        let currentLang = localStorage.getItem('battleship_lang') || 'ru';
+        
+        // ==================== LANGUAGE SYSTEM ====================
+        function applyTranslations(lang) {
+            // Update HTML lang attribute
+            document.documentElement.lang = lang;
+            
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (translations[lang][key]) {
+                    // Preserve icons if present
+                    const icon = el.querySelector('i');
+                    el.textContent = translations[lang][key];
+                    if (icon) el.insertBefore(icon, el.firstChild);
+                }
+            });
+            
+            // Update button titles
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            
+            // Update ship list with new language
+            if (typeof updateShipSelection === 'function') {
+                updateShipSelection();
+            }
+            
+            // Update status message if game is running
+            updateStatusMessage();
+        }
+        
+        function setLanguage(lang) {
+            if (!translations[lang]) return;
+            currentLang = lang;
+            localStorage.setItem('battleship_lang', lang);
+            applyTranslations(lang);
+        }
+        
+        function t(key, params = {}) {
+            let text = translations[currentLang][key] || translations['ru'][key] || key;
+            // Simple parameter replacement: {name} -> value
+            Object.keys(params).forEach(param => {
+                text = text.replace(`{${param}}`, params[param]);
+            });
+            return text;
+        }
+        
+        function updateStatusMessage() {
+            const statusEl = document.getElementById('statusMessage');
+            if (!statusEl) return;
+            
+            // Preserve dynamic messages based on game state
+            if (gameState.placingShips && gameState.selectedShip !== null) {
+                const ship = SHIPS[gameState.selectedShip];
+                const name = t(ship.nameKey);
+                const decks = t('decks');
+                statusEl.innerHTML = `<i class="fas fa-ship"></i> ${t('shipSelected', { name, size: ship.size, decks })} <i class="fas fa-ship"></i>`;
+            }
+        }
+        
+        // Language button event listeners
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                setLanguage(btn.dataset.lang);
+            });
+        });
+        
+        // ==================== GAME STATE ====================
+        let gameState = {
+            playerBoard: [],
+            enemyBoard: [],
+            playerShips: [],
+            enemyShips: [],
+            playerShots: 0,
+            enemyShots: 0,
+            gameStarted: false,
+            gameOver: false,
+            playerTurn: true,
+            lastHit: null,
+            enemyStrategy: "hunt",
+            placingShips: true,
+            selectedShip: null,
+            shipOrientation: 'horizontal',
+            shipsToPlace: [...SHIPS],
+            soundEnabled: true,
+            audioContext: null,
+            soundVolume: 0.3
+        };
+        
+        // ==================== SOUND SYSTEM ====================
+        class SoundSystem {
+            constructor() {
+                this.audioContext = null;
+                this.volume = 0.3;
+                this.soundTypes = {
+                    miss: this.createWaterSplash,
+                    hit: this.createExplosion,
+                    sunk: this.createSinkingSound,
+                    place: this.createPlaceSound
+                };
+            }
+            
+            init() {
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            
+            createWaterSplash() {
+                const audioContext = gameState.audioContext;
+                if (!audioContext) return null;
+                
+                const oscillator1 = audioContext.createOscillator();
+                const gainNode1 = audioContext.createGain();
+                
+                oscillator1.type = 'sine';
+                oscillator1.frequency.setValueAtTime(150, audioContext.currentTime);
+                oscillator1.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 0.3);
+                
+                gainNode1.gain.setValueAtTime(0.3 * gameState.soundVolume, audioContext.currentTime);
+                gainNode1.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+                
+                const oscillator2 = audioContext.createOscillator();
+                const gainNode2 = audioContext.createGain();
+                
+                oscillator2.type = 'sine';
+                oscillator2.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator2.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.2);
+                
+                gainNode2.gain.setValueAtTime(0.1 * gameState.soundVolume, audioContext.currentTime);
+                gainNode2.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+                
+                oscillator1.connect(gainNode1);
+                oscillator2.connect(gainNode2);
+                gainNode1.connect(audioContext.destination);
+                gainNode2.connect(audioContext.destination);
+                
+                oscillator1.start();
+                oscillator2.start();
+                oscillator1.stop(audioContext.currentTime + 0.5);
+                oscillator2.stop(audioContext.currentTime + 0.3);
+                
+                return [oscillator1, oscillator2];
+            }
+            
+            createExplosion() {
+                const audioContext = gameState.audioContext;
+                if (!audioContext) return null;
+                
+                const oscillator1 = audioContext.createOscillator();
+                const gainNode1 = audioContext.createGain();
+                
+                oscillator1.type = 'sawtooth';
+                oscillator1.frequency.setValueAtTime(120, audioContext.currentTime);
+                oscillator1.frequency.exponentialRampToValueAtTime(40, audioContext.currentTime + 0.2);
+                
+                gainNode1.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode1.gain.linearRampToValueAtTime(0.4 * gameState.soundVolume, audioContext.currentTime + 0.01);
+                gainNode1.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.4);
+                
+                const oscillator2 = audioContext.createOscillator();
+                const gainNode2 = audioContext.createGain();
+                
+                oscillator2.type = 'square';
+                oscillator2.frequency.setValueAtTime(600, audioContext.currentTime);
+                oscillator2.frequency.exponentialRampToValueAtTime(300, audioContext.currentTime + 0.15);
+                
+                gainNode2.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode2.gain.linearRampToValueAtTime(0.2 * gameState.soundVolume, audioContext.currentTime + 0.005);
+                gainNode2.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+                
+                const oscillator3 = audioContext.createOscillator();
+                const gainNode3 = audioContext.createGain();
+                
+                oscillator3.type = 'triangle';
+                oscillator3.frequency.setValueAtTime(1200, audioContext.currentTime);
+                oscillator3.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
+                
+                gainNode3.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode3.gain.linearRampToValueAtTime(0.15 * gameState.soundVolume, audioContext.currentTime + 0.003);
+                gainNode3.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+                
+                const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate);
+                const noiseData = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < noiseData.length; i++) {
+                    noiseData[i] = Math.random() * 2 - 1;
+                }
+                const noiseSource = audioContext.createBufferSource();
+                const noiseGain = audioContext.createGain();
+                
+                noiseSource.buffer = noiseBuffer;
+                noiseGain.gain.setValueAtTime(0.1 * gameState.soundVolume, audioContext.currentTime);
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+                
+                oscillator1.connect(gainNode1);
+                oscillator2.connect(gainNode2);
+                oscillator3.connect(gainNode3);
+                noiseSource.connect(noiseGain);
+                
+                gainNode1.connect(audioContext.destination);
+                gainNode2.connect(audioContext.destination);
+                gainNode3.connect(audioContext.destination);
+                noiseGain.connect(audioContext.destination);
+                
+                oscillator1.start();
+                oscillator2.start();
+                oscillator3.start();
+                noiseSource.start();
+                
+                oscillator1.stop(audioContext.currentTime + 0.4);
+                oscillator2.stop(audioContext.currentTime + 0.3);
+                oscillator3.stop(audioContext.currentTime + 0.2);
+                noiseSource.stop(audioContext.currentTime + 0.1);
+                
+                return [oscillator1, oscillator2, oscillator3, noiseSource];
+            }
+            
+            createSinkingSound(shipSize) {
+                const sounds = [];
+                
+                for (let i = 0; i < shipSize; i++) {
+                    setTimeout(() => {
+                        const explosion = this.createExplosion();
+                        if (explosion) sounds.push(...explosion);
+                    }, i * 150);
+                }
+                
+                setTimeout(() => {
+                    const audioContext = gameState.audioContext;
+                    if (!audioContext) return;
+                    
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(80, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(30, audioContext.currentTime + 1);
+                    
+                    gainNode.gain.setValueAtTime(0.2 * gameState.soundVolume, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.5);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 1.5);
+                    
+                    sounds.push(oscillator);
+                }, shipSize * 150);
+                
+                return sounds;
+            }
+            
+            createPlaceSound() {
+                const audioContext = gameState.audioContext;
+                if (!audioContext) return null;
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.15 * gameState.soundVolume, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.2);
+                
+                return [oscillator];
+            }
+            
+            play(soundType, param = null) {
+                if (!gameState.soundEnabled || !gameState.audioContext) return;
+                
+                try {
+                    if (this.soundTypes[soundType]) {
+                        return this.soundTypes[soundType].call(this, param);
+                    }
+                } catch (error) {
+                    console.warn('Sound error:', error);
+                }
+                return null;
+            }
+        }
+        
+        const soundSystem = new SoundSystem();
+        
+        // ==================== BOARD FUNCTIONS ====================
+        function initBoards() {
+            gameState.playerBoard = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
+            gameState.enemyBoard = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
+            gameState.playerShips = [];
+            gameState.enemyShips = [];
+            gameState.playerShots = 0;
+            gameState.enemyShots = 0;
+            gameState.gameStarted = false;
+            gameState.gameOver = false;
+            gameState.playerTurn = true;
+            gameState.lastHit = null;
+            gameState.enemyStrategy = "hunt";
+            gameState.placingShips = true;
+            gameState.selectedShip = null;
+            gameState.shipOrientation = 'horizontal';
+            
+            if (!gameState.audioContext) {
+                try {
+                    gameState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    if (gameState.audioContext.state === 'suspended') {
+                        gameState.audioContext.resume();
+                    }
+                } catch (error) {
+                    console.warn('Audio not supported:', error);
+                }
+            }
+            
+            SHIPS.forEach(ship => ship.placed = 0);
+            
+            updateUI();
+            renderBoards();
+            createShipCounters();
+            updateShipSelection();
+            
+            document.getElementById('shipSelection').classList.add('active');
+            document.getElementById('startGameBtn').disabled = true;
+            document.getElementById('statusMessage').textContent = t('selectShip');
+        }
+        
+        function createShipCounters() {
+            const playerShipsDiv = document.getElementById('playerShips');
+            const enemyShipsDiv = document.getElementById('enemyShips');
+            
+            playerShipsDiv.innerHTML = '';
+            enemyShipsDiv.innerHTML = '';
+            
+            SHIPS.forEach(shipType => {
+                for (let i = 0; i < shipType.count; i++) {
+                    const playerShipIcon = document.createElement('div');
+                    playerShipIcon.className = 'ship-icon';
+                    playerShipIcon.textContent = shipType.size;
+                    playerShipIcon.id = `player-ship-${shipType.size}-${i}`;
+                    playerShipsDiv.appendChild(playerShipIcon);
+                    
+                    const enemyShipIcon = document.createElement('div');
+                    enemyShipIcon.className = 'ship-icon';
+                    enemyShipIcon.textContent = shipType.size;
+                    enemyShipIcon.id = `enemy-ship-${shipType.size}-${i}`;
+                    enemyShipsDiv.appendChild(enemyShipIcon);
+                }
+            });
+        }
+        
+        function updateShipSelection() {
+            const shipList = document.getElementById('shipList');
+            shipList.innerHTML = '';
+            
+            SHIPS.forEach((shipType, index) => {
+                const shipItem = document.createElement('div');
+                shipItem.className = `ship-item ${shipType.placed >= shipType.count ? 'disabled' : ''}`;
+                if (gameState.selectedShip === index) {
+                    shipItem.classList.add('selected');
+                }
+                shipItem.dataset.shipIndex = index;
+                
+                const shipPreview = document.createElement('div');
+                shipPreview.className = 'ship-preview';
+                
+                for (let i = 0; i < shipType.size; i++) {
+                    const shipCell = document.createElement('div');
+                    shipCell.className = 'ship-cell';
+                    shipPreview.appendChild(shipCell);
+                }
+                
+                const shipInfo = document.createElement('div');
+                shipInfo.className = 'ship-info';
+                
+                const shipName = document.createElement('div');
+                shipName.className = 'ship-name';
+                shipName.textContent = t(shipType.nameKey);
+                
+                const shipCount = document.createElement('div');
+                shipCount.className = 'ship-count';
+                shipCount.textContent = `(${shipType.size} ${t('decks')}) - ${shipType.placed}/${shipType.count}`;
+                
+                shipInfo.appendChild(shipName);
+                shipInfo.appendChild(shipCount);
+                
+                shipItem.appendChild(shipPreview);
+                shipItem.appendChild(shipInfo);
+                
+                if (shipType.placed < shipType.count) {
+                    shipItem.addEventListener('click', () => selectShip(index));
+                }
+                
+                shipList.appendChild(shipItem);
+            });
+        }
+        
+        function selectShip(index) {
+            gameState.selectedShip = index;
+            updateShipSelection();
+            
+            const ship = SHIPS[index];
+            const name = t(ship.nameKey);
+            const decks = t('decks');
+            document.getElementById('statusMessage').innerHTML = 
+                `<i class="fas fa-ship"></i> ${t('shipSelected', { name, size: ship.size, decks })} <i class="fas fa-ship"></i>`;
+        }
+        
+        function renderBoards() {
+            const playerBoard = document.getElementById('playerBoard');
+            playerBoard.innerHTML = '';
+            
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    if (gameState.playerBoard[row][col] === 1) {
+                        cell.classList.add('ship');
+                    } else if (gameState.playerBoard[row][col] === 2) {
+                        cell.classList.add('hit');
+                    } else if (gameState.playerBoard[row][col] === 3) {
+                        cell.classList.add('miss');
+                    }
+                    
+                    if (gameState.placingShips && !gameState.gameStarted) {
+                        cell.addEventListener('mouseenter', (e) => showShipPreview(e, row, col));
+                        cell.addEventListener('mouseleave', hideShipPreview);
+                        cell.addEventListener('click', () => placeShip(row, col));
+                    }
+                    
+                    playerBoard.appendChild(cell);
+                }
+            }
+            
+            const enemyBoard = document.getElementById('enemyBoard');
+            enemyBoard.innerHTML = '';
+            
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    if (gameState.enemyBoard[row][col] === 2) {
+                        cell.classList.add('hit');
+                        if (isShipDestroyed(gameState.enemyBoard, row, col)) {
+                            markDestroyedShip(gameState.enemyBoard, row, col, cell);
+                        }
+                    } else if (gameState.enemyBoard[row][col] === 3) {
+                        cell.classList.add('miss');
+                    }
+                    
+                    if (gameState.gameStarted && !gameState.gameOver && gameState.playerTurn) {
+                        cell.addEventListener('click', () => playerShoot(row, col));
+                    }
+                    
+                    enemyBoard.appendChild(cell);
+                }
+            }
+        }
+        
+        function showShipPreview(e, row, col) {
+            if (!gameState.placingShips || gameState.selectedShip === null) return;
+            
+            const ship = SHIPS[gameState.selectedShip];
+            const cells = getShipCells(row, col, ship.size, gameState.shipOrientation);
+            
+            hideShipPreview();
+            
+            const preview = document.createElement('div');
+            preview.className = 'ship-placement-hint';
+            preview.id = 'shipPreview';
+            
+            const isValid = canPlaceShip(gameState.playerBoard, row, col, ship.size, gameState.shipOrientation);
+            
+            cells.forEach(([r, c]) => {
+                const cellPreview = document.createElement('div');
+                cellPreview.className = `ship-cell ${!isValid ? 'invalid-placement' : ''}`;
+                cellPreview.style.position = 'absolute';
+                cellPreview.style.width = 'calc(100% / 10 - 2px)';
+                cellPreview.style.height = 'calc(100% / 10 - 2px)';
+                cellPreview.style.left = `calc(${c} * (100% / 10) + 1px)`;
+                cellPreview.style.top = `calc(${r} * (100% / 10) + 1px)`;
+                preview.appendChild(cellPreview);
+            });
+            
+            document.querySelector('.player-board').appendChild(preview);
+        }
+        
+        function hideShipPreview() {
+            const preview = document.getElementById('shipPreview');
+            if (preview) preview.remove();
+        }
+        
+        function getShipCells(row, col, size, orientation) {
+            const cells = [];
+            for (let i = 0; i < size; i++) {
+                if (orientation === 'horizontal') {
+                    cells.push([row, col + i]);
+                } else {
+                    cells.push([row + i, col]);
+                }
+            }
+            return cells;
+        }
+        
+        function placeShip(row, col) {
+            if (!gameState.placingShips || gameState.selectedShip === null) return;
+            
+            const shipIndex = gameState.selectedShip;
+            const ship = SHIPS[shipIndex];
+            
+            if (ship.placed >= ship.count) {
+                document.getElementById('statusMessage').textContent = t('allShipsPlaced');
+                return;
+            }
+            
+            if (!canPlaceShip(gameState.playerBoard, row, col, ship.size, gameState.shipOrientation)) {
+                document.getElementById('statusMessage').textContent = t('shipNotPlaceable');
+                return;
+            }
+            
+            const shipCells = [];
+            for (let i = 0; i < ship.size; i++) {
+                const r = gameState.shipOrientation === 'horizontal' ? row : row + i;
+                const c = gameState.shipOrientation === 'horizontal' ? col + i : col;
+                
+                gameState.playerBoard[r][c] = 1;
+                shipCells.push({ row: r, col: c, hit: false });
+            }
+            
+            gameState.playerShips.push({
+                size: ship.size,
+                cells: shipCells,
+                destroyed: false
+            });
+            
+            ship.placed++;
+            
+            if (gameState.soundEnabled) {
+                soundSystem.play('place');
+            }
+            
+            updateShipSelection();
+            renderBoards();
+            
+            const allPlaced = SHIPS.every(s => s.placed >= s.count);
+            if (allPlaced) {
+                document.getElementById('statusMessage').textContent = t('allPlaced');
+                document.getElementById('completePlacementBtn').disabled = false;
+            } else {
+                const nextShip = SHIPS.findIndex(s => s.placed < s.count);
+                if (nextShip !== -1) {
+                    selectShip(nextShip);
+                }
+            }
+        }
+        
+        function canPlaceShip(board, row, col, size, horizontal) {
+            for (let i = 0; i < size; i++) {
+                const r = horizontal ? row : row + i;
+                const c = horizontal ? col + i : col;
+                
+                if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return false;
+                if (board[r][c] !== 0) return false;
+                
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        const nr = r + dr;
+                        const nc = c + dc;
+                        
+                        if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE) {
+                            if (board[nr][nc] !== 0) return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        
+        function isShipDestroyed(board, row, col) {
+            if (board[row][col] !== 2 && board[row][col] !== 1) return false;
+            
+            const shipCells = [];
+            const visited = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(false));
+            
+            function dfs(r, c) {
+                if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return;
+                if (visited[r][c]) return;
+                if (board[r][c] !== 2 && board[r][c] !== 1) return;
+                
+                visited[r][c] = true;
+                shipCells.push([r, c]);
+                
+                dfs(r-1, c);
+                dfs(r+1, c);
+                dfs(r, c-1);
+                dfs(r, c+1);
+            }
+            
+            dfs(row, col);
+            return shipCells.every(([r, c]) => board[r][c] === 2);
+        }
+        
+        function markDestroyedShip(board, row, col, startCell) {
+            const shipCells = [];
+            const visited = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(false));
+            
+            function dfs(r, c) {
+                if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return;
+                if (visited[r][c]) return;
+                if (board[r][c] !== 2 && board[r][c] !== 1) return;
+                
+                visited[r][c] = true;
+                shipCells.push([r, c]);
+                
+                dfs(r-1, c);
+                dfs(r+1, c);
+                dfs(r, c-1);
+                dfs(r, c+1);
+            }
+            
+            dfs(row, col);
+            
+            shipCells.forEach(([r, c]) => {
+                const cell = document.querySelector(`.enemy-board .cell[data-row="${r}"][data-col="${c}"]`);
+                if (cell) cell.classList.add('ship-destroyed');
+            });
+            
+            const borderCells = new Set();
+            shipCells.forEach(([r, c]) => {
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        const nr = r + dr;
+                        const nc = c + dc;
+                        
+                        if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE) {
+                            if (!shipCells.some(([sr, sc]) => sr === nr && sc === nc)) {
+                                borderCells.add(`${nr},${nc}`);
+                            }
+                        }
+                    }
+                }
+            });
+            
+            borderCells.forEach(pos => {
+                const [r, c] = pos.split(',').map(Number);
+                if (gameState.enemyBoard[r][c] === 0) {
+                    gameState.enemyBoard[r][c] = 3;
+                }
+            });
+        }
+        
+        // ==================== GAMEPLAY ====================
+        function playerShoot(row, col) {
+            if (!gameState.gameStarted || gameState.gameOver || !gameState.playerTurn) return;
+            if (gameState.enemyBoard[row][col] >= 2) return;
+            
+            gameState.playerShots++;
+            const hit = gameState.enemyBoard[row][col] === 1;
+            
+            if (hit) {
+                gameState.enemyBoard[row][col] = 2;
+                if (gameState.soundEnabled) soundSystem.play('hit');
+                document.getElementById('statusMessage').innerHTML = `<i class="fas fa-fire"></i> ${t('hit')} <i class="fas fa-fire"></i>`;
+                
+                if (isShipDestroyed(gameState.enemyBoard, row, col)) {
+                    const shipSize = getShipSizeAt(gameState.enemyBoard, row, col);
+                    if (gameState.soundEnabled) soundSystem.play('sunk', shipSize);
+                    document.getElementById('statusMessage').innerHTML = `<i class="fas fa-ship"></i> ${t('shipDestroyed')} <i class="fas fa-ship"></i>`;
+                    updateShipCounters();
+                    if (checkGameOver()) return;
+                }
+                gameState.playerTurn = true;
+            } else {
+                gameState.enemyBoard[row][col] = 3;
+                if (gameState.soundEnabled) soundSystem.play('miss');
+                document.getElementById('statusMessage').innerHTML = `<i class="fas fa-water"></i> ${t('miss')} <i class="fas fa-water"></i>`;
+                gameState.playerTurn = false;
+                setTimeout(enemyTurn, 1000);
+            }
+            
+            updateUI();
+            renderBoards();
+        }
+        
+        function getShipSizeAt(board, row, col) {
+            const shipCells = [];
+            const visited = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(false));
+            
+            function dfs(r, c) {
+                if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return;
+                if (visited[r][c]) return;
+                if (board[r][c] !== 2 && board[r][c] !== 1) return;
+                
+                visited[r][c] = true;
+                shipCells.push([r, c]);
+                dfs(r-1, c); dfs(r+1, c); dfs(r, c-1); dfs(r, c+1);
+            }
+            dfs(row, col);
+            return shipCells.length;
+        }
+        
+        function enemyTurn() {
+            if (gameState.gameOver) return;
+            
+            let row, col, found = false;
+            
+            if (gameState.lastHit && gameState.enemyStrategy === "target") {
+                [row, col, found] = findTargetAroundLastHit();
+            }
+            if (!found) [row, col] = huntForTarget();
+            
+            gameState.enemyShots++;
+            const hit = gameState.playerBoard[row][col] === 1;
+            
+            if (hit) {
+                gameState.playerBoard[row][col] = 2;
+                gameState.lastHit = { row, col };
+                gameState.enemyStrategy = "target";
+                
+                if (gameState.soundEnabled) soundSystem.play('hit');
+                document.getElementById('statusMessage').innerHTML = `<i class="fas fa-bomb"></i> ${t('enemyHit')} <i class="fas fa-bomb"></i>`;
+                
+                if (isShipDestroyed(gameState.playerBoard, row, col)) {
+                    const shipSize = getShipSizeAt(gameState.playerBoard, row, col);
+                    if (gameState.soundEnabled) soundSystem.play('sunk', shipSize);
+                    document.getElementById('statusMessage').innerHTML = `<i class="fas fa-skull-crossbones"></i> ${t('enemyDestroyed')} <i class="fas fa-skull-crossbones"></i>`;
+                    gameState.lastHit = null;
+                    gameState.enemyStrategy = "hunt";
+                    updateShipCounters();
+                    if (checkGameOver()) return;
+                }
+                setTimeout(enemyTurn, 1500);
+            } else {
+                gameState.playerBoard[row][col] = 3;
+                if (gameState.soundEnabled) soundSystem.play('miss');
+                document.getElementById('statusMessage').innerHTML = `<i class="fas fa-crosshairs"></i> ${t('enemyMiss')} <i class="fas fa-crosshairs"></i>`;
+                gameState.playerTurn = true;
+            }
+            
+            updateUI();
+            renderBoards();
+        }
+        
+        function findTargetAroundLastHit() {
+            const { row, col } = gameState.lastHit;
+            const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+            
+            for (const [dr, dc] of directions) {
+                const newRow = row + dr;
+                const newCol = col + dc;
+                if (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 && newCol < BOARD_SIZE) {
+                    if (gameState.playerBoard[newRow][newCol] < 2) {
+                        return [newRow, newCol, true];
+                    }
+                }
+            }
+            return [0, 0, false];
+        }
+        
+        function huntForTarget() {
+            let attempts = 0;
+            do {
+                if (attempts < 50) {
+                    const row = Math.floor(Math.random() * BOARD_SIZE);
+                    const col = Math.floor(Math.random() * BOARD_SIZE);
+                    if ((row + col) % 2 === 0 && gameState.playerBoard[row][col] < 2) {
+                        return [row, col];
+                    }
+                } else {
+                    const row = Math.floor(Math.random() * BOARD_SIZE);
+                    const col = Math.floor(Math.random() * BOARD_SIZE);
+                    if (gameState.playerBoard[row][col] < 2) return [row, col];
+                }
+                attempts++;
+            } while (attempts < 100);
+            
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    if (gameState.playerBoard[r][c] < 2) return [r, c];
+                }
+            }
+            return [0, 0];
+        }
+        
+        // ==================== UI UPDATES ====================
+        function updateUI() {
+            document.getElementById('playerShots').textContent = gameState.playerShots;
+            document.getElementById('enemyShots').textContent = gameState.enemyShots;
+            
+            const enemyRemaining = countRemainingShips(gameState.enemyBoard);
+            document.getElementById('remainingShips').textContent = enemyRemaining;
+            document.getElementById('currentTurn').textContent = gameState.playerTurn ? t('yourTurn') : t('enemyTurn');
+            
+            updateShipCounters();
+        }
+        
+        function countRemainingShips(board) {
+            let count = 0;
+            const visited = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(false));
+            
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    if (board[row][col] === 1 && !visited[row][col]) {
+                        count++;
+                        function dfs(r, c) {
+                            if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return;
+                            if (visited[r][c] || board[r][c] !== 1) return;
+                            visited[r][c] = true;
+                            dfs(r-1, c); dfs(r+1, c); dfs(r, c-1); dfs(r, c+1);
+                        }
+                        dfs(row, col);
+                    }
+                }
+            }
+            return count;
+        }
+        
+        function updateShipCounters() {
+            const playerShips = countShipsByType(gameState.playerBoard);
+            SHIPS.forEach(shipType => {
+                for (let i = 0; i < shipType.count; i++) {
+                    const icon = document.getElementById(`player-ship-${shipType.size}-${i}`);
+                    if (icon) {
+                        const remaining = playerShips[shipType.size] || 0;
+                        icon.classList.toggle('destroyed', i >= remaining);
+                    }
+                }
+            });
+            
+            const enemyShips = countShipsByType(gameState.enemyBoard);
+            SHIPS.forEach(shipType => {
+                for (let i = 0; i < shipType.count; i++) {
+                    const icon = document.getElementById(`enemy-ship-${shipType.size}-${i}`);
+                    if (icon) {
+                        const remaining = enemyShips[shipType.size] || 0;
+                        icon.classList.toggle('destroyed', i >= remaining);
+                    }
+                }
+            });
+        }
+        
+        function countShipsByType(board) {
+            const shipsByType = {};
+            const visited = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(false));
+            
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    if (board[row][col] === 1 && !visited[row][col]) {
+                        let size = 0;
+                        const cells = [];
+                        
+                        function dfs(r, c) {
+                            if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) return;
+                            if (visited[r][c] || board[r][c] !== 1) return;
+                            visited[r][c] = true;
+                            size++;
+                            cells.push([r, c]);
+                            dfs(r-1, c); dfs(r+1, c); dfs(r, c-1); dfs(r, c+1);
+                        }
+                        dfs(row, col);
+                        
+                        const destroyed = cells.every(([r, c]) => board[r][c] === 2);
+                        if (!destroyed) shipsByType[size] = (shipsByType[size] || 0) + 1;
+                    }
+                }
+            }
+            return shipsByType;
+        }
+        
+        function checkGameOver() {
+            const playerRemaining = countRemainingShips(gameState.playerBoard);
+            const enemyRemaining = countRemainingShips(gameState.enemyBoard);
+            
+            if (playerRemaining === 0) {
+                gameState.gameOver = true;
+                document.getElementById('loseMessage').textContent = `${t('loseMessage')} ${gameState.enemyShots} ${t('enemyShotsTitle').toLowerCase()}`;
+                setTimeout(() => document.getElementById('loseModal').classList.add('active'), 1500);
+                return true;
+            } else if (enemyRemaining === 0) {
+                gameState.gameOver = true;
+                document.getElementById('winMessage').textContent = `${t('winMessage')} ${gameState.playerShots} ${t('yourShots').toLowerCase()}`;
+                setTimeout(() => document.getElementById('winModal').classList.add('active'), 1500);
+                return true;
+            }
+            return false;
+        }
+        
+        function autoPlaceShips(board, isPlayer = true) {
+            const ships = [];
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) board[row][col] = 0;
+            }
+            
+            SHIPS.forEach(shipType => {
+                for (let shipCount = 0; shipCount < shipType.count; shipCount++) {
+                    let placed = false;
+                    for (let attempt = 0; attempt < 100 && !placed; attempt++) {
+                        const horizontal = Math.random() > 0.5;
+                        let row, col;
+                        if (horizontal) {
+                            row = Math.floor(Math.random() * BOARD_SIZE);
+                            col = Math.floor(Math.random() * (BOARD_SIZE - shipType.size + 1));
+                        } else {
+                            row = Math.floor(Math.random() * (BOARD_SIZE - shipType.size + 1));
+                            col = Math.floor(Math.random() * BOARD_SIZE);
+                        }
+                        
+                        if (canPlaceShip(board, row, col, shipType.size, horizontal)) {
+                            const shipCells = [];
+                            for (let i = 0; i < shipType.size; i++) {
+                                const r = horizontal ? row : row + i;
+                                const c = horizontal ? col + i : col;
+                                board[r][c] = 1;
+                                shipCells.push({ row: r, col: c, hit: false });
+                            }
+                            ships.push({ size: shipType.size, cells: shipCells, destroyed: false });
+                            placed = true;
+                        }
+                    }
+                }
+            });
+            return ships;
+        }
+        
+        function startGame() {
+            if (gameState.gameStarted) return;
+            
+            const playerShipsCount = countRemainingShips(gameState.playerBoard);
+            if (playerShipsCount < 10) {
+                document.getElementById('statusMessage').innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${t('placeAllShips')} <i class="fas fa-exclamation-triangle"></i>`;
+                return;
+            }
+            
+            gameState.gameStarted = true;
+            gameState.placingShips = false;
+            document.getElementById('shipSelection').classList.remove('active');
+            document.getElementById('statusMessage').innerHTML = `<i class="fas fa-flag"></i> ${t('gameStarted')} <i class="fas fa-flag"></i>`;
+            
+            gameState.enemyShips = autoPlaceShips(gameState.enemyBoard, false);
+            updateUI();
+            renderBoards();
+        }
+        
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('autoPlaceBtn').addEventListener('click', () => {
+            if (!gameState.gameStarted) {
+                for (let row = 0; row < BOARD_SIZE; row++) {
+                    for (let col = 0; col < BOARD_SIZE; col++) gameState.playerBoard[row][col] = 0;
+                }
+                SHIPS.forEach(ship => ship.placed = 0);
+                gameState.playerShips = [];
+                gameState.playerShips = autoPlaceShips(gameState.playerBoard, true);
+                SHIPS.forEach(ship => ship.placed = ship.count);
+                
+                document.getElementById('statusMessage').innerHTML = `<i class="fas fa-check"></i> ${t('placementComplete')} <i class="fas fa-check"></i>`;
+                updateShipSelection();
+                renderBoards();
+                updateUI();
+                document.getElementById('completePlacementBtn').disabled = false;
+            }
+        });
+        
+        document.getElementById('manualPlaceBtn').addEventListener('click', () => {
+            if (!gameState.gameStarted) {
+                initBoards();
+                document.getElementById('shipSelection').classList.add('active');
+                document.getElementById('statusMessage').textContent = t('selectShip');
+                gameState.placingShips = true;
+                gameState.selectedShip = 0;
+                updateShipSelection();
+            }
+        });
+        
+        document.getElementById('rotateBtn').addEventListener('click', () => {
+            gameState.shipOrientation = gameState.shipOrientation === 'horizontal' ? 'vertical' : 'horizontal';
+            const arrow = gameState.shipOrientation === 'horizontal' ? '→' : '↓';
+            document.getElementById('rotateBtn').innerHTML = `<i class="fas fa-sync-alt"></i> ${t('rotateBtn').replace('(R)', `(${arrow})`)}`;
+        });
+        
+        document.getElementById('clearBoardBtn').addEventListener('click', () => {
+            if (!gameState.gameStarted) initBoards();
+        });
+        
+        document.getElementById('completePlacementBtn').addEventListener('click', () => {
+            if (!gameState.gameStarted) {
+                const allPlaced = SHIPS.every(s => s.placed >= s.count);
+                if (allPlaced) {
+                    document.getElementById('shipSelection').classList.remove('active');
+                    document.getElementById('statusMessage').textContent = t('placementComplete');
+                    document.getElementById('startGameBtn').disabled = false;
+                    gameState.placingShips = false;
+                    renderBoards();
+                }
+            }
+        });
+        
+        document.getElementById('startGameBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            initBoards();
+            gameState.enemyShips = autoPlaceShips(gameState.enemyBoard, false);
+        });
+        
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            const icon = document.querySelector('#soundToggle i');
+            icon.className = gameState.soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+            if (gameState.soundEnabled && !gameState.audioContext) {
+                try {
+                    gameState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    soundSystem.init();
+                } catch (error) {
+                    console.warn('Audio not supported:', error);
+                }
+            }
+        });
+        
+        document.getElementById('instructionsBtn').addEventListener('click', () => {
+            const instructions = document.getElementById('instructions');
+            instructions.style.display = instructions.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        document.getElementById('closeWinModal').addEventListener('click', () => {
+            document.getElementById('winModal').classList.remove('active');
+            initBoards();
+            gameState.enemyShips = autoPlaceShips(gameState.enemyBoard, false);
+        });
+        
+        document.getElementById('closeLoseModal').addEventListener('click', () => {
+            document.getElementById('loseModal').classList.remove('active');
+            initBoards();
+            gameState.enemyShips = autoPlaceShips(gameState.enemyBoard, false);
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'r' && gameState.placingShips) {
+                gameState.shipOrientation = gameState.shipOrientation === 'horizontal' ? 'vertical' : 'horizontal';
+                const arrow = gameState.shipOrientation === 'horizontal' ? '→' : '↓';
+                document.getElementById('rotateBtn').innerHTML = `<i class="fas fa-sync-alt"></i> ${t('rotateBtn').replace('(R)', `(${arrow})`)}`;
+                renderBoards();
+            }
+        });
+        
+        // ==================== INITIALIZATION ====================
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                gameState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                soundSystem.init();
+                document.addEventListener('click', () => {
+                    if (gameState.audioContext.state === 'suspended') {
+                        gameState.audioContext.resume();
+                    }
+                }, { once: true });
+            } catch (error) {
+                console.warn('Audio not supported:', error);
+                gameState.soundEnabled = false;
+                document.querySelector('#soundToggle i').className = 'fas fa-volume-mute';
+            }
+            
+            // Apply initial language
+            setLanguage(currentLang);
+            
+            initBoards();
+            gameState.enemyShips = autoPlaceShips(gameState.enemyBoard, false);
+            selectShip(0);
+        });
+    </script>
+    <footer style="
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 8px 15px;
+      background: rgba(0, 30, 60, 0.8);
+      border-top: 1px solid #00ff9d;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #00cc7a;
+      z-index: 1000;
+      box-sizing: border-box;
+    ">
+    © 2026 
+    <a href="https://alivasoft.com" 
+       style="color: #00ff9d; text-decoration: none; font-weight: bold;">
+      ALIVASOFT.COM
+    </a>
+    <span style="font-size: 0.85em; opacity: 0.9;">
+      (<a href="https://alivasoft.com/ru/documents/mit-license" 
+          style="color: #00ff9d; text-decoration: none;">
+        MIT License
+      </a>)
+    </span> • 
+    • Icons:  
+    <a href="https://fontawesome.com" target="_blank" rel="noopener" 
+       style="color: #00ff9d; text-decoration: underline;">
+      Font Awesome
+    </a> 
+    <a href="https://creativecommons.org/licenses/by/4.0/" 
+       target="_blank" rel="license" 
+       style="color: #00ff9d; text-decoration: none;">
+      (CC BY 4.0)
+    </a>
+    </footer>
+</body>
+</html>
