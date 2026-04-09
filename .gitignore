@@ -134,6 +134,32 @@ dist
 !.yarn/sdks
 !.yarn/versions
 
+# ===========================
+# ДОБАВЛЕНО ДЛЯ HTML-ПРОЕКТА
+# ===========================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Архивы (чтобы случайно не закоммитить)
+*.zip
+*.rar
+*.7z
+
+# Временные файлы
+*.tmp
+*.bak
+*~
+
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
