@@ -1,4 +1,4 @@
-# AlivaSoft HTML Tools & Games / Инструменты и игры AlivaSoft / Herramientas y juegos AlivaSoft
+# AlivaSoft.com HTML Tools & Games / Инструменты и игры AlivaSoft / Herramientas y juegos AlivaSoft.com
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Made in Russia](https://img.shields.io/badge/Made%20in-Russia-blue.svg)](https://alivasoft.com)
