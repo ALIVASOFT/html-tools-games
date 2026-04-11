@@ -1,1 +1,1202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>ALIVASOFT.COM: Пятнашки</title>
+  
+  <meta name="description" content="Классическая головоломка Пятнашки от ALIVASOFT.COM. Развивайте логику и память бесплатно.">
+  <meta property="og:title" content="ALIVASOFT.COM: Пятнашки">
+  <meta property="og:description" content="Образовательная игра-головоломка с проверкой решаемости и статистикой прогресса.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0f172a">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+      --accent-color: #818cf8;
+      --cheat-gradient: linear-gradient(135deg, #f59e0b, #ef4444);
+      --check-gradient: linear-gradient(135deg, #10b981, #059669);
+      --stats-gradient: linear-gradient(135deg, #3b82f6, #06b6d4);
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --radius: 16px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
 
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 24px;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 20%);
+    }
+
+    .container { max-width: 600px; margin: 0 auto; }
+
+    /* ИСПРАВЛЕНО: header теперь всегда держит элементы в одну строку */
+    .header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      gap: 16px; 
+      margin-bottom: 24px;
+      padding-bottom: 16px; 
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .logo { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .logo-icon {
+      background: var(--accent-gradient); 
+      width: 48px; 
+      height: 48px;
+      border-radius: 12px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      flex-shrink: 0;
+    }
+    .logo-text h1 {
+      font-size: 1.5rem; 
+      font-weight: 800;
+      background: linear-gradient(90deg, #e0e7ff, #c7d2fe);
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+      margin: 0;
+      white-space: nowrap;
+    }
+    .logo-text p { 
+      color: var(--text-secondary); 
+      font-size: 0.9rem; 
+      margin-top: 2px; 
+      white-space: nowrap;
+    }
+    .logo-domain { 
+      color: var(--accent-color); 
+      font-weight: 600; 
+      font-size: 0.8rem; 
+      display: block; 
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    /* Переключатель языков - всегда справа */
+    .lang-switch {
+      display: flex; 
+      background: var(--bg-secondary); 
+      padding: 4px;
+      border-radius: 50px; 
+      border: 1px solid var(--bg-tertiary);
+      flex-shrink: 0;
+    }
+    .lang-btn {
+      background: transparent; 
+      color: var(--text-secondary); 
+      border: none;
+      min-width: 40px; 
+      height: 40px; 
+      border-radius: 50%; 
+      cursor: pointer;
+      font-weight: bold; 
+      transition: var(--transition); 
+      font-size: 0.85rem;
+      padding: 0 8px;
+    }
+    .lang-btn.active {
+      background: var(--accent-gradient); 
+      color: white; 
+      transform: scale(1.05);
+    }
+
+    .game-card {
+      background: var(--bg-secondary); 
+      border-radius: var(--radius);
+      padding: 24px; 
+      box-shadow: var(--shadow); 
+      text-align: center;
+    }
+
+    .difficulty-selector {
+      display: flex; 
+      justify-content: center; 
+      gap: 8px; 
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .diff-btn {
+      background: var(--bg-tertiary); 
+      color: var(--text-secondary);
+      border: 1px solid var(--bg-primary); 
+      padding: 6px 14px;
+      border-radius: 20px; 
+      font-size: 0.85rem; 
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .diff-btn.active, .diff-btn:hover {
+      background: var(--accent-gradient); 
+      color: white; 
+      border-color: transparent;
+    }
+
+    .stats {
+      display: flex; 
+      justify-content: center; 
+      gap: 20px; 
+      margin-bottom: 20px;
+      font-size: 1rem; 
+      color: var(--text-secondary); 
+      flex-wrap: wrap;
+    }
+    .stat-item { 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+    }
+    .stat-value { 
+      color: var(--text-primary); 
+      font-weight: 600; 
+    }
+
+    .board {
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 8px;
+      margin: 0 auto 20px; 
+      max-width: 320px; 
+      position: relative;
+    }
+    .board.size-3 { grid-template-columns: repeat(3, 1fr); max-width: 240px; }
+    .board.size-5 { grid-template-columns: repeat(5, 1fr); max-width: 400px; }
+
+    .tile {
+      aspect-ratio: 1; 
+      background: var(--accent-gradient); 
+      color: white;
+      font-size: 1.3rem; 
+      font-weight: bold; 
+      display: flex;
+      align-items: center; 
+      justify-content: center; 
+      border-radius: 10px;
+      cursor: pointer; 
+      transition: var(--transition); 
+      user-select: none;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+    }
+    .tile:hover:not(.empty) { 
+      transform: scale(1.03); 
+      box-shadow: 0 6px 14px rgba(99, 102, 241, 0.4); 
+    }
+    .tile:active:not(.empty) { 
+      transform: scale(0.98); 
+    }
+
+    .empty {
+      background: transparent !important; 
+      cursor: default;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15) !important;
+      transition: box-shadow 0.2s ease;
+    }
+    .empty:hover { 
+      box-shadow: inset 0 0 0 2px rgba(139, 92, 246, 0.4) !important; 
+    }
+    .empty::after {
+      content: "↻"; 
+      position: absolute; 
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.3); 
+      top: 50%; 
+      left: 50%;
+      transform: translate(-50%, -50%); 
+      pointer-events: none;
+      opacity: 0; 
+      transition: opacity 0.3s ease;
+    }
+    .board:hover .empty::after { 
+      opacity: 1; 
+    }
+
+    .controls { 
+      display: grid; 
+      grid-template-columns: repeat(2, 1fr); 
+      gap: 10px; 
+      margin-top: 12px; 
+    }
+    .btn {
+      border: none;
+      padding: 12px 18px; 
+      border-radius: 10px; 
+      font-weight: 600;
+      cursor: pointer; 
+      transition: var(--transition);
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      gap: 8px; 
+      font-size: 0.95rem;
+      color: white;
+    }
+    .btn:hover:not(:disabled) { 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3); 
+    }
+    .btn:disabled { 
+      opacity: 0.5; 
+      cursor: not-allowed; 
+      transform: none; 
+    }
+    
+    .btn-primary { background: var(--accent-gradient); }
+    .btn-cheat { background: var(--cheat-gradient); }
+    .btn-check { background: var(--check-gradient); }
+    .btn-stats { background: var(--stats-gradient); }
+
+    .solvability-badge {
+      display: inline-flex; 
+      align-items: center; 
+      gap: 6px;
+      padding: 6px 14px; 
+      border-radius: 20px; 
+      font-size: 0.9rem;
+      font-weight: 600; 
+      margin: 12px 0;
+    }
+    .solvability-badge.ok { 
+      background: rgba(16, 185, 129, 0.15); 
+      color: #34d399; 
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .solvability-badge.error { 
+      background: rgba(239, 68, 68, 0.15); 
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .modal {
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%;
+      background: rgba(15, 23, 42, 0.96); 
+      display: flex;
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center;
+      z-index: 1000; 
+      opacity: 0; 
+      pointer-events: none;
+      transition: opacity 0.35s ease; 
+      padding: 20px;
+    }
+    .modal.show { 
+      opacity: 1; 
+      pointer-events: all; 
+    }
+    .modal-content {
+      background: var(--bg-secondary); 
+      padding: 32px; 
+      border-radius: var(--radius);
+      text-align: left; 
+      max-width: 560px; 
+      max-height: 85vh; 
+      overflow-y: auto;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+      position: relative;
+      animation: slideIn 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .modal-close {
+      position: absolute; 
+      top: 16px; 
+      right: 16px; 
+      background: var(--bg-tertiary); 
+      border: none;
+      color: var(--text-secondary); 
+      font-size: 24px; 
+      cursor: pointer;
+      width: 36px; 
+      height: 36px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      border-radius: 50%; 
+      transition: var(--transition);
+    }
+    .modal-close:hover { 
+      background: var(--danger); 
+      color: white; 
+      transform: rotate(90deg);
+    }
+    .modal-content h2 {
+      font-size: 2rem; 
+      margin-bottom: 16px; 
+      color: var(--accent-color);
+      text-align: center; 
+      border-bottom: 2px solid var(--accent-color); 
+      padding-bottom: 12px;
+    }
+    .modal-content h3 { 
+      font-size: 1.3rem; 
+      margin: 20px 0 12px; 
+      color: var(--info); 
+    }
+    .modal-content p { 
+      margin-bottom: 14px; 
+      line-height: 1.7; 
+      font-size: 1rem; 
+    }
+
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    .stats-table th, .stats-table td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .stats-table th {
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+
+    @keyframes slideIn { 
+      from { transform: translateY(-20px); opacity: 0; } 
+      to { transform: translateY(0); opacity: 1; } 
+    }
+
+    .footer {
+      text-align: center; 
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .footer a {
+      color: var(--accent-color); 
+      text-decoration: none; 
+      font-weight: 600;
+    }
+    .footer a:hover { 
+      text-decoration: underline; 
+    }
+
+    /* Адаптивность */
+    @media (max-width: 600px) {
+      .logo-text h1 {
+        font-size: 1.2rem;
+      }
+      .logo-text p {
+        font-size: 0.8rem;
+      }
+      .lang-btn {
+        min-width: 36px;
+        height: 36px;
+        font-size: 0.75rem;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .header {
+        flex-wrap: wrap;
+      }
+      .logo {
+        width: 100%;
+      }
+      .lang-switch {
+        margin-left: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats { 
+        flex-direction: column; 
+        gap: 8px; 
+      }
+      .tile { 
+        font-size: 1.1rem; 
+      }
+      .controls { 
+        grid-template-columns: 1fr; 
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon"><i class="fas fa-puzzle-piece"></i></div>
+        <div class="logo-text">
+          <h1 id="title">ALIVASOFT.COM</h1>
+          <p id="subtitle">Пятнашки</p>
+          <span class="logo-domain" id="domain">alivasoft.com</span>
+        </div>
+      </div>
+      
+      <!-- Переключатель языков всегда справа -->
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="ru">RU</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="es">ES</button>
+      </div>
+    </div>
+
+    <div class="game-card">
+      <div class="difficulty-selector">
+        <button class="diff-btn" data-size="3">3×3</button>
+        <button class="diff-btn active" data-size="4">4×4</button>
+        <button class="diff-btn" data-size="5">5×5</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat-item"><i class="fas fa-stopwatch"></i> <span id="timeLabel">Время:</span> <span id="timer" class="stat-value">00:00</span></div>
+        <div class="stat-item"><i class="fas fa-dice"></i> <span id="movesLabel">Ходы:</span> <span id="moves" class="stat-value">0</span></div>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 8px;">
+        <span id="solvabilityBadge" class="solvability-badge ok">
+          <i class="fas fa-check-circle"></i> <span id="solvabilityText">Раскладка решаема ✓</span>
+        </span>
+      </div>
+
+      <div class="board size-4" id="board" role="grid" aria-label="Игровое поле Пятнашки"></div>
+
+      <div class="controls">
+        <button class="btn btn-primary" id="newGameBtn">
+          <i class="fas fa-sync"></i> <span id="newGameText">Новая игра</span>
+        </button>
+        <button class="btn btn-cheat" id="cheatBtn">
+          <i class="fas fa-magic"></i> <span id="cheatText">Чит-код</span>
+        </button>
+        <button class="btn btn-check" id="checkBtn">
+          <i class="fas fa-search"></i> <span id="checkText">Проверить</span>
+        </button>
+        <button class="btn btn-stats" id="statsBtn">
+          <i class="fas fa-chart-bar"></i> <span id="statsText">Статистика</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Модальное окно победы -->
+    <div class="modal" id="winMessage" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <button class="modal-close" id="closeWin" aria-label="Закрыть">&times;</button>
+        <h2 id="winTitle">🎉 Победа!</h2>
+        <p id="winMessageText" style="text-align: center; font-size: 1.1rem; margin: 16px 0;"></p>
+        <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 10px; margin: 16px 0;">
+          <p style="margin: 4px 0; color: var(--text-secondary);">
+            ⏱️ <span id="timeLabelModal">Время:</span> <strong id="finalTime">00:00</strong>
+          </p>
+        </div>
+        <div id="newRecordMsg" style="display: none; background: rgba(16, 185, 129, 0.15); color: #34d399; padding: 12px; border-radius: 8px; text-align: center; font-weight: 600; margin: 12px 0; border: 1px solid rgba(16, 185, 129, 0.3);">
+          🏆 Новый рекорд для <span id="recordSize">4×4</span>!
+        </div>
+        <div style="text-align: center; margin-top: 24px;">
+          <button class="btn btn-primary" id="playAgainBtn" style="width: 100%; padding: 14px; font-size: 1.1rem;">
+            <i class="fas fa-redo"></i> <span id="playAgainText">Играть снова</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальное окно статистики -->
+    <div class="modal" id="statsModal" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <button class="modal-close" id="closeStatsModal" aria-label="Закрыть">&times;</button>
+        <h2 id="statsTitle">📊 Статистика</h2>
+        <div id="statsContent"></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <small style="color: #cbd5e1; font-size: 0.85rem;">
+        © 2026 <a href="https://alivasoft.com" target="_blank" rel="noopener">ALIVASOFT.COM</a> • 
+        Icons: <a href="https://fontawesome.com" target="_blank" rel="noopener">Font Awesome</a>
+      </small>
+    </div>
+  </div>
+
+  <script>
+    // ==================== ЛОКАЛИЗАЦИЯ ====================
+    const translations = {
+      ru: {
+        title: "ALIVASOFT.COM", subtitle: "Пятнашки", domain: "alivasoft.com",
+        timeLabel: "Время:", movesLabel: "Ходы:", timeLabelModal: "Время:",
+        newGameText: "Новая игра", cheatText: "Чит-код", checkText: "Проверить",
+        statsText: "Статистика", winTitle: "🎉 Победа!", playAgainText: "Играть снова",
+        solvable: "Раскладка решаема ✓", unsolvable: "Раскладка НЕ решаема ✗",
+        statsTitle: "📊 Статистика", bestResult: "Лучший результат",
+        gamesPlayed: "Игр сыграно", avgMoves: "Среднее ходов",
+        date: "Дата", movesHeader: "Ходы", timeHeader: "Время",
+        noGames: "Нет сыгранных игр", clearStats: "Очистить статистику",
+        movesWord: (n) => {
+          if (n % 10 === 1 && n % 100 !== 11) return 'ход';
+          if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'хода';
+          return 'ходов';
+        }
+      },
+      en: {
+        title: "ALIVASOFT.COM", subtitle: "15 Puzzle", domain: "alivasoft.com",
+        timeLabel: "Time:", movesLabel: "Moves:", timeLabelModal: "Time:",
+        newGameText: "New Game", cheatText: "Cheat Code", checkText: "Check",
+        statsText: "Statistics", winTitle: "🎉 Victory!", playAgainText: "Play Again",
+        solvable: "Layout is solvable ✓", unsolvable: "Layout is NOT solvable ✗",
+        statsTitle: "📊 Statistics", bestResult: "Best result",
+        gamesPlayed: "Games played", avgMoves: "Average moves",
+        date: "Date", movesHeader: "Moves", timeHeader: "Time",
+        noGames: "No games played", clearStats: "Clear statistics",
+        movesWord: (n) => n === 1 ? 'move' : 'moves'
+      },
+      es: {
+        title: "ALIVASOFT.COM", subtitle: "Rompecabezas 15", domain: "alivasoft.com",
+        timeLabel: "Tiempo:", movesLabel: "Movimientos:", timeLabelModal: "Tiempo:",
+        newGameText: "Nuevo juego", cheatText: "Código trampa", checkText: "Verificar",
+        statsText: "Estadísticas", winTitle: "🎉 ¡Victoria!", playAgainText: "Jugar de nuevo",
+        solvable: "Disposición resoluble ✓", unsolvable: "Disposición NO resoluble ✗",
+        statsTitle: "📊 Estadísticas", bestResult: "Mejor resultado",
+        gamesPlayed: "Juegos jugados", avgMoves: "Promedio de movimientos",
+        date: "Fecha", movesHeader: "Movimientos", timeHeader: "Tiempo",
+        noGames: "No hay juegos", clearStats: "Borrar estadísticas",
+        movesWord: (n) => n === 1 ? 'movimiento' : 'movimientos'
+      }
+    };
+
+    // ==================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ====================
+    let currentLang = localStorage.getItem('lang') || 'ru';
+    let size = parseInt(localStorage.getItem('gridSize')) || 4;
+    let total = size * size;
+    let emptyValue = 0;
+    let board = [];
+    let moves = 0;
+    let timerInterval = null;
+    let elapsedSeconds = 0;
+    let gameActive = false;
+    let isProcessingMove = false;
+
+    function $(id) { return document.getElementById(id); }
+    
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const s = (seconds % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function createSolvedBoard(gridSize) {
+      const total = gridSize * gridSize;
+      return Array.from({ length: total - 1 }, (_, i) => i + 1).concat(emptyValue);
+    }
+
+    // ==================== ПРОВЕРКА РЕШАЕМОСТИ ====================
+    function isSolvable(tiles, gridSize) {
+      let inversions = 0;
+      const flat = tiles.filter(x => x !== emptyValue);
+      
+      for (let i = 0; i < flat.length; i++) {
+        for (let j = i + 1; j < flat.length; j++) {
+          if (flat[i] > flat[j]) inversions++;
+        }
+      }
+      
+      if (gridSize % 2 === 1) {
+        return inversions % 2 === 0;
+      } else {
+        const emptyIndex = tiles.indexOf(emptyValue);
+        const emptyRowFromBottom = gridSize - Math.floor(emptyIndex / gridSize);
+        return (inversions + emptyRowFromBottom) % 2 === 1;
+      }
+    }
+
+    function shuffleBoard(gridSize) {
+      let tiles;
+      let attempts = 0;
+      do {
+        const total = gridSize * gridSize;
+        tiles = Array.from({ length: total - 1 }, (_, i) => i + 1);
+        tiles.push(emptyValue);
+        
+        for (let i = tiles.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+        }
+        attempts++;
+      } while (!isSolvable(tiles, gridSize) && attempts < 1000);
+      
+      return tiles;
+    }
+
+    // ==================== ОТРИСОВКА ДОСКИ ====================
+    function renderBoard() {
+      const boardEl = $('board');
+      boardEl.innerHTML = '';
+      boardEl.className = `board size-${size}`;
+      boardEl.setAttribute('aria-label', `Игровое поле ${size}×${size}`);
+      
+      board.forEach((value, index) => {
+        const tile = document.createElement('div');
+        tile.className = value === emptyValue ? 'tile empty' : 'tile';
+        tile.dataset.value = value;
+        tile.dataset.index = index;
+        
+        tile.setAttribute('role', 'gridcell');
+        tile.setAttribute('aria-label', value === emptyValue 
+          ? 'Empty cell' : `Tile ${value}`);
+        tile.setAttribute('tabindex', value !== emptyValue ? '0' : '-1');
+        
+        if (value !== emptyValue) {
+          tile.textContent = value;
+          
+          tile.addEventListener('click', () => handleTileClick(value));
+          tile.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleTileClick(value);
+            }
+          });
+        }
+        
+        boardEl.appendChild(tile);
+      });
+    }
+
+    // ==================== ЛОГИКА ИГРЫ ====================
+    function findPosition(value) {
+      const index = board.indexOf(value);
+      return { row: Math.floor(index / size), col: index % size };
+    }
+
+    function getEmptyPosition() { return findPosition(emptyValue); }
+
+    function handleTileClick(value) {
+      if (isProcessingMove || value === emptyValue || !gameActive) return;
+      
+      const tilePos = findPosition(value);
+      const emptyPos = getEmptyPosition();
+      const distance = Math.abs(tilePos.row - emptyPos.row) + Math.abs(tilePos.col - emptyPos.col);
+      
+      if (distance === 1) {
+        isProcessingMove = true;
+        
+        const tileIdx = tilePos.row * size + tilePos.col;
+        const emptyIdx = emptyPos.row * size + emptyPos.col;
+        [board[tileIdx], board[emptyIdx]] = [board[emptyIdx], board[tileIdx]];
+        
+        moves++;
+        $('moves').textContent = moves;
+        
+        renderBoard();
+        
+        if (isSolved()) { 
+          endGame(); 
+        }
+        
+        setTimeout(() => { isProcessingMove = false; }, 150);
+      }
+    }
+
+    function isSolved() {
+      const solved = createSolvedBoard(size);
+      return board.every((val, i) => val === solved[i]);
+    }
+
+    // ==================== ТАЙМЕР ====================
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      elapsedSeconds = 0;
+      $('timer').textContent = '00:00';
+      gameActive = true;
+      timerInterval = setInterval(() => {
+        elapsedSeconds++;
+        $('timer').textContent = formatTime(elapsedSeconds);
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      gameActive = false;
+    }
+
+    // ==================== СТАТИСТИКА ====================
+    function saveStats(result) {
+      const stats = {
+        date: new Date().toISOString(),
+        moves: result.moves,
+        time: result.time,
+        gridSize: result.gridSize
+      };
+      
+      const key = `aliva_puzzle_stats_${size}x${size}`;
+      const history = JSON.parse(localStorage.getItem(key) || '[]');
+      history.unshift(stats);
+      if (history.length > 50) history.pop();
+      localStorage.setItem(key, JSON.stringify(history));
+      
+      const bestKey = `aliva_puzzle_best_${size}x${size}`;
+      const best = JSON.parse(localStorage.getItem(bestKey) || 'null');
+      
+      if (!best || result.moves < best.moves || (result.moves === best.moves && result.time < best.time)) {
+        localStorage.setItem(bestKey, JSON.stringify(result));
+        return true;
+      }
+      return false;
+    }
+
+    function showStats() {
+      const t = translations[currentLang];
+      const key = `aliva_puzzle_stats_${size}x${size}`;
+      const history = JSON.parse(localStorage.getItem(key) || '[]');
+      const bestKey = `aliva_puzzle_best_${size}x${size}`;
+      const best = JSON.parse(localStorage.getItem(bestKey) || 'null');
+      
+      let html = '';
+      
+      if (best) {
+        html += `
+          <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 10px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0;">🏆 ${t.bestResult} (${size}×${size})</h3>
+            <p>${t.movesLabel} <strong>${best.moves}</strong> • ${t.timeLabelModal} <strong>${formatTime(best.time)}</strong></p>
+          </div>
+        `;
+      }
+      
+      if (history.length > 0) {
+        const totalMoves = history.reduce((sum, g) => sum + g.moves, 0);
+        const avgMoves = Math.round(totalMoves / history.length);
+        
+        html += `
+          <div style="margin-bottom: 16px;">
+            <p>${t.gamesPlayed}: <strong>${history.length}</strong> • ${t.avgMoves}: <strong>${avgMoves}</strong></p>
+          </div>
+          <table class="stats-table">
+            <thead>
+              <tr><th>${t.date}</th><th>${t.movesHeader}</th><th>${t.timeHeader}</th></tr>
+            </thead>
+            <tbody>
+        `;
+        
+        history.slice(0, 10).forEach(game => {
+          const d = new Date(game.date);
+          const dateStr = `${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')}.${d.getFullYear()}`;
+          html += `<tr><td>${dateStr}</td><td>${game.moves}</td><td>${formatTime(game.time)}</td></tr>`;
+        });
+        
+        html += `</tbody></table>`;
+        
+        html += `
+          <button class="btn btn-cheat" id="clearStatsBtn" style="margin-top: 20px; width: 100%;">
+            <i class="fas fa-trash"></i> ${t.clearStats}
+          </button>
+        `;
+      } else {
+        html += `<p style="text-align: center; color: var(--text-secondary);">${t.noGames}</p>`;
+      }
+      
+      $('statsContent').innerHTML = html;
+      $('statsTitle').textContent = t.statsTitle;
+      $('statsModal').classList.add('show');
+      
+      const clearBtn = $('clearStatsBtn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          localStorage.removeItem(key);
+          localStorage.removeItem(bestKey);
+          showStats();
+        });
+      }
+    }
+
+    // ==================== ОКОНЧАНИЕ ИГРЫ ====================
+    function endGame() {
+      stopTimer();
+      
+      const result = { moves, time: elapsedSeconds, gridSize: size };
+      const isNewRecord = saveStats(result);
+      
+      createConfetti();
+      playFanfare();
+      
+      setTimeout(() => {
+        const t = translations[currentLang];
+        const movesWord = t.movesWord(moves);
+        
+        $('winTitle').textContent = t.winTitle;
+        $('finalTime').textContent = formatTime(elapsedSeconds);
+        $('recordSize').textContent = `${size}×${size}`;
+        $('timeLabelModal').textContent = t.timeLabelModal;
+        
+        $('winMessageText').innerHTML = `Вы собрали головоломку за <strong>${moves}</strong> ${movesWord}!`;
+        
+        $('newRecordMsg').style.display = isNewRecord ? 'block' : 'none';
+        
+        $('winMessage').classList.add('show');
+      }, 800);
+    }
+
+    // ==================== НОВАЯ ИГРА ====================
+    function newGame(newSize = size) {
+      stopTimer();
+      
+      size = newSize;
+      total = size * size;
+      moves = 0;
+      elapsedSeconds = 0;
+      isProcessingMove = false;
+      
+      $('moves').textContent = '0';
+      $('timer').textContent = '00:00';
+      
+      document.querySelectorAll('.diff-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.size) === size);
+      });
+      
+      board = shuffleBoard(size);
+      updateSolvabilityBadge(isSolvable(board, size));
+      renderBoard();
+      $('winMessage').classList.remove('show');
+      
+      const oldInfo = document.querySelector('.solvability-info');
+      if (oldInfo) oldInfo.remove();
+      
+      startTimer();
+    }
+
+    // ==================== ЧИТ-КОД ====================
+    function cheatCode() {
+      if (!gameActive || isSolved()) return;
+      
+      const solved = createSolvedBoard(size);
+      board = [...solved];
+      
+      const emptyIndex = board.length - 1;
+      const emptyRow = Math.floor(emptyIndex / size);
+      const emptyCol = emptyIndex % size;
+      
+      let swapIndex = -1;
+      if (emptyCol > 0) {
+        swapIndex = emptyIndex - 1;
+      } else if (emptyRow > 0) {
+        swapIndex = emptyIndex - size;
+      }
+      
+      if (swapIndex !== -1) {
+        [board[emptyIndex], board[swapIndex]] = [board[swapIndex], board[emptyIndex]];
+      }
+      
+      moves = 0;
+      elapsedSeconds = 0;
+      $('moves').textContent = '0';
+      $('timer').textContent = '00:00';
+      
+      renderBoard();
+      updateSolvabilityBadge(true);
+    }
+
+    // ==================== ИНДИКАТОР СХОДИМОСТИ ====================
+    function updateSolvabilityBadge(isSolvableResult) {
+      const badge = $('solvabilityBadge');
+      const t = translations[currentLang];
+      
+      if (isSolvableResult) {
+        badge.className = 'solvability-badge ok';
+        badge.innerHTML = `<i class="fas fa-check-circle"></i> <span>${t.solvable}</span>`;
+      } else {
+        badge.className = 'solvability-badge error';
+        badge.innerHTML = `<i class="fas fa-times-circle"></i> <span>${t.unsolvable}</span>`;
+      }
+    }
+
+    function checkSolvableDetailed(tiles, gridSize) {
+      let inversions = 0;
+      const flat = tiles.filter(x => x !== emptyValue);
+      
+      for (let i = 0; i < flat.length; i++) {
+        for (let j = i + 1; j < flat.length; j++) {
+          if (flat[i] > flat[j]) inversions++;
+        }
+      }
+      
+      const emptyIndex = tiles.indexOf(emptyValue);
+      const emptyRow = Math.floor(emptyIndex / gridSize);
+      const emptyRowFromBottom = gridSize - emptyRow;
+      
+      let solvable, reason;
+      
+      if (gridSize % 2 === 1) {
+        solvable = inversions % 2 === 0;
+        reason = solvable 
+          ? `Чётное количество инверсий (${inversions})` 
+          : `Нечётное количество инверсий (${inversions})`;
+      } else {
+        const sum = inversions + emptyRowFromBottom;
+        solvable = sum % 2 === 1;
+        reason = solvable
+          ? `Пустая в ${emptyRowFromBottom}-м ряду снизу + ${inversions} инверсий = ${sum} (нечётное) ✓`
+          : `Пустая в ${emptyRowFromBottom}-м ряду снизу + ${inversions} инверсий = ${sum} (чётное) ✗`;
+      }
+      
+      return { solvable, inversions, emptyRow: emptyRow + 1, emptyRowFromBottom, gridSize, reason };
+    }
+
+    function showSolvableInfo(result) {
+      const oldInfo = document.querySelector('.solvability-info');
+      if (oldInfo) oldInfo.remove();
+      
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'solvability-info';
+      infoDiv.style.cssText = `
+        background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 10px; padding: 14px; margin: 12px 0; text-align: left;
+        font-size: 0.9rem; color: var(--text-secondary); animation: slideIn 0.3s ease;
+      `;
+      infoDiv.innerHTML = `
+        <div style="color: #34d399; font-weight: 600; margin-bottom: 8px;">
+          <i class="fas fa-circle-check"></i> Раскладка решаема
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; font-size: 0.85rem;">
+          <span>• Инверсий:</span><strong>${result.inversions}</strong>
+          <span>• Пустая (сверху):</span><strong>${result.emptyRow} ряд</strong>
+          <span>• Пустая (снизу):</span><strong>${result.emptyRowFromBottom} ряд</strong>
+        </div>
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(16,185,129,0.2); color: #10b981;">
+          <i class="fas fa-lightbulb"></i> ${result.reason}
+        </div>
+      `;
+      
+      const badge = $('solvabilityBadge');
+      badge.parentNode.insertBefore(infoDiv, badge.nextSibling);
+      
+      setTimeout(() => { if (infoDiv.parentNode) infoDiv.remove(); }, 8000);
+    }
+
+    function showUnsolvableReason(result) {
+      const oldInfo = document.querySelector('.solvability-info');
+      if (oldInfo) oldInfo.remove();
+      
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'solvability-info';
+      infoDiv.style.cssText = `
+        background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 10px; padding: 14px; margin: 12px 0; text-align: left;
+        font-size: 0.9rem; color: var(--text-secondary); animation: slideIn 0.3s ease;
+      `;
+      infoDiv.innerHTML = `
+        <div style="color: #f87171; font-weight: 600; margin-bottom: 8px;">
+          <i class="fas fa-circle-xmark"></i> Раскладка НЕ решаема
+        </div>
+        <div style="margin-bottom: 10px;">${result.reason}</div>
+        <div style="background: rgba(239,68,68,0.15); padding: 10px; border-radius: 6px;">
+          <i class="fas fa-lightbulb" style="color: #fbbf24;"></i> 
+          <strong>Решение:</strong> нажмите "Новая игра"
+        </div>
+      `;
+      
+      const badge = $('solvabilityBadge');
+      badge.parentNode.insertBefore(infoDiv, badge.nextSibling);
+      
+      setTimeout(() => { if (infoDiv.parentNode) infoDiv.remove(); }, 8000);
+    }
+
+    function checkCurrentLayout() {
+      const result = checkSolvableDetailed(board, size);
+      const badge = $('solvabilityBadge');
+      const t = translations[currentLang];
+      
+      if (result.solvable) {
+        badge.className = 'solvability-badge ok';
+        badge.innerHTML = `<i class="fas fa-check-circle"></i> <span>${t.solvable}</span>`;
+        showSolvableInfo(result);
+      } else {
+        badge.className = 'solvability-badge error';
+        badge.innerHTML = `<i class="fas fa-times-circle"></i> <span>${t.unsolvable}</span>`;
+        showUnsolvableReason(result);
+      }
+      
+      const boardEl = $('board');
+      boardEl.style.transition = 'transform 0.25s ease, box-shadow 0.25s ease';
+      boardEl.style.transform = result.solvable ? 'scale(1.03)' : 'scale(0.97)';
+      boardEl.style.boxShadow = result.solvable 
+        ? '0 0 35px rgba(16, 185, 129, 0.5)' 
+        : '0 0 35px rgba(239, 68, 68, 0.5)';
+      setTimeout(() => { 
+        boardEl.style.transform = 'scale(1)'; 
+        boardEl.style.boxShadow = 'none';
+      }, 300);
+    }
+
+    // ==================== САЛЮТ И ЗВУК ====================
+    function createConfetti() {
+      const canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999';
+      document.body.appendChild(canvas);
+      
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      const particles = [];
+      const colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#06b6d4'];
+      
+      for (let i = 0; i < 150; i++) {
+        particles.push({
+          x: canvas.width / 2, y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.5) * 20 - 5,
+          life: 1, color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 8 + 4, gravity: 0.3, drag: 0.96
+        });
+      }
+      
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let active = false;
+        
+        particles.forEach(p => {
+          if (p.life > 0) {
+            active = true;
+            p.x += p.vx; p.y += p.vy; p.vy += p.gravity;
+            p.vx *= p.drag; p.vy *= p.drag; p.life -= 0.015;
+            
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+        
+        if (active) requestAnimationFrame(animate);
+        else canvas.remove();
+      }
+      
+      animate();
+    }
+
+    function playFanfare() {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      
+      const ctx = new AudioContext();
+      const notes = [
+        { freq: 523.25, time: 0, duration: 0.3 },
+        { freq: 659.25, time: 0, duration: 0.3 },
+        { freq: 783.99, time: 0, duration: 0.3 },
+        { freq: 1046.50, time: 0.1, duration: 0.4 },
+        { freq: 783.99, time: 0.3, duration: 0.5 },
+        { freq: 1046.50, time: 0.5, duration: 0.8 }
+      ];
+      
+      notes.forEach(note => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.value = note.freq;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0, ctx.currentTime + note.time);
+        gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + note.time + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + note.time + note.duration);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + note.time);
+        osc.stop(ctx.currentTime + note.time + note.duration);
+      });
+    }
+
+    // ==================== ЛОКАЛИЗАЦИЯ ====================
+    function applyLang() {
+      const t = translations[currentLang];
+      document.documentElement.lang = currentLang;
+      
+      $('title').innerHTML = `${t.title}: ${t.subtitle}`;
+      document.title = `${t.title}: ${t.subtitle}`;
+      $('subtitle').textContent = t.subtitle;
+      $('domain').textContent = t.domain;
+      $('timeLabel').textContent = t.timeLabel;
+      $('movesLabel').textContent = t.movesLabel;
+      $('newGameText').textContent = t.newGameText;
+      $('cheatText').textContent = t.cheatText;
+      $('checkText').textContent = t.checkText;
+      $('statsText').textContent = t.statsText;
+      $('winTitle').textContent = t.winTitle;
+      $('playAgainText').textContent = t.playAgainText;
+      $('timeLabelModal').textContent = t.timeLabelModal;
+      
+      const isSol = isSolvable(board, size);
+      updateSolvabilityBadge(isSol);
+      
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === currentLang);
+      });
+    }
+
+    // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+    function init() {
+      applyLang();
+      newGame(size);
+      
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentLang = btn.dataset.lang;
+          localStorage.setItem('lang', currentLang);
+          applyLang();
+        });
+      });
+      
+      document.querySelectorAll('.diff-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const newSize = parseInt(btn.dataset.size);
+          localStorage.setItem('gridSize', newSize);
+          newGame(newSize);
+        });
+      });
+      
+      $('newGameBtn').addEventListener('click', () => newGame(size));
+      $('cheatBtn').addEventListener('click', cheatCode);
+      $('checkBtn').addEventListener('click', checkCurrentLayout);
+      $('statsBtn').addEventListener('click', showStats);
+      $('playAgainBtn').addEventListener('click', () => newGame(size));
+      
+      $('closeWin').addEventListener('click', () => $('winMessage').classList.remove('show'));
+      $('closeStatsModal').addEventListener('click', () => $('statsModal').classList.remove('show'));
+      
+      document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) modal.classList.remove('show');
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
