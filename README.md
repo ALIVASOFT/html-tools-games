@@ -13,7 +13,7 @@ Colección gratuita de herramientas web y juegos de navegador distribuidos bajo 
 
 ### О проекте
 
-**Разработчик:** Анисимов Александр Николаевич  
+**Разработчик:** Александр Анисимов  
 **Сайт:** [alivasoft.com](https://alivasoft.com)  
 **Контакты:** team@alivasoft.com  
 **Город:** Иркутск, Российская Федерация
@@ -25,6 +25,7 @@ Colección gratuita de herramientas web y juegos de navegador distribuidos bajo 
 | Папка | Описание |
 |-------|----------|
 | `sea-battle/` | Игра «Морской бой» — классическая настольная игра против компьютера. Расставьте свои корабли и потопите флот противника. |
+| `15-puzzle/` | Классическая головоломка «Пятнашки» — соберите числа по порядку. |
 
 ### ⚖️ Юридическая информация (РФ)
 
@@ -52,6 +53,7 @@ This repository contains the source code of HTML tools and games available for f
 | Folder | Description |
 |--------|-------------|
 | `sea-battle/` | «Sea Battle» game — the classic Battleship board game against the computer. Place your ships and sink the enemy fleet. |
+| `15-puzzle/` | Classic "Fifteen Puzzle" — arrange the numbers in order. |
 
 ### ⚖️ Legal Notice
 
@@ -79,6 +81,7 @@ Este repositorio contiene el código fuente de herramientas HTML y juegos dispon
 | Carpeta | Descripción |
 |---------|-------------|
 | `sea-battle/` | Juego «Batalla Naval» — el clásico juego de mesa Hundir la Flota contra la computadora. Coloca tus barcos y hunde la flota enemiga. |
+| `15-puzzle/` | Clásico rompecabezas «Quince» — ordena los números en secuencia. |
 
 ### ⚖️ Aviso Legal
 
